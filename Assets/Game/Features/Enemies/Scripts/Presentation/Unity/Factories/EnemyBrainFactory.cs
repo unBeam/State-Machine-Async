@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Core.Scripts.Domain.StateMachine;
+using Game.Features.Enemies.Application;
+using Game.Features.Enemies.Presentation.Unity.Configs;
 using Zenject;
 
-namespace Game.Features.Enemies.Application
+namespace Game.Features.Enemies.Presentation.Unity.Factories
 {
     public sealed class EnemyBrainFactory
     {

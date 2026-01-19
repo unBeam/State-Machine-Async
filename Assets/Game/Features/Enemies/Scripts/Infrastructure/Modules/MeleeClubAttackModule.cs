@@ -2,11 +2,12 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Features.Enemies.Domain;
-using Game.Features.Enemies.Domain.Configs;
 using Game.Features.Enemies.Domain.Modules;
+using Game.Features.Enemies.Presentation.Unity;
+using Game.Features.Enemies.Presentation.Unity.Configs;
 using UnityEngine;
 
-namespace Game.Features.Enemies.Application.Modules
+namespace Game.Features.Enemies.Infrastructure.Modules
 {
     public sealed class MeleeClubAttackModule : IAttackModule
     {

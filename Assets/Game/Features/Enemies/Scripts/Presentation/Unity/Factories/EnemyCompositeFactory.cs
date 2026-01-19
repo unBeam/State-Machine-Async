@@ -2,12 +2,13 @@
 using Game.Features.Combat;
 using Game.Features.Enemies.Application.Modules;
 using Game.Features.Enemies.Domain;
-using Game.Features.Enemies.Domain.Configs;
 using Game.Features.Enemies.Domain.Modules;
+using Game.Features.Enemies.Infrastructure.Modules;
+using Game.Features.Enemies.Presentation.Unity.Configs;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Game.Features.Enemies.Application
+namespace Game.Features.Enemies.Presentation.Unity.Factories
 {
     public sealed class EnemyCompositeFactory
     {

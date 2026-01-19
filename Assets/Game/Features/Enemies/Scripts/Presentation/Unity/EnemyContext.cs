@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Game.Features.Enemies.Domain
+namespace Game.Features.Enemies.Presentation.Unity
 {
     public sealed class EnemyContext
     {

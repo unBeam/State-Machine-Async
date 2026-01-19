@@ -1,10 +1,13 @@
 ﻿using Game.Core.Scripts.Domain.StateMachine;
+using Game.Features.Enemies.Application;
 using Game.Features.Enemies.Application.States;
 using Game.Features.Enemies.Domain;
+using Game.Features.Enemies.Presentation.Unity.Configs;
+using Game.Features.Enemies.Presentation.Unity.Factories;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Features.Enemies.Application
+namespace Game.Features.Enemies.Presentation.Unity.Installers
 {
     public sealed class EnemyInstaller : MonoInstaller
     {
