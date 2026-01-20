@@ -7,22 +7,26 @@ namespace Game.Features.Enemies.Domain
 {
     public sealed class EnemyStateSwitcher : IEnemyStateSwitcher
     {
-        private readonly Func<EnemyBrain> _brainGetter;
+        private EnemyBrain _brain;
 
-        public EnemyStateSwitcher(Func<EnemyBrain> brainGetter)
+        public void Bind(EnemyBrain brain)
         {
-            _brainGetter = brainGetter;
+            if (brain == null)
+            {
+                throw new ArgumentNullException(nameof(brain));
+            }
+
+            _brain = brain;
         }
 
         public UniTask SetStateAsync(EnemyStateID id, CancellationToken cancellationToken)
         {
-            EnemyBrain brain = _brainGetter.Invoke();
-            if (brain == null)
+            if (_brain == null)
             {
-                return UniTask.CompletedTask;
+                throw new InvalidOperationException("EnemyStateSwitcher is not bound to EnemyBrain.");
             }
 
-            return brain.SetStateAsync(id, cancellationToken);
+            return _brain.SetStateAsync(id, cancellationToken);
         }
     }
 }

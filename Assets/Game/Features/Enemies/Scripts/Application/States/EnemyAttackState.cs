@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Game.Core.Scripts.Domain.StateMachine;
 using Game.Features.Enemies.Domain;
+using UnityEngine;
 
 namespace Game.Features.Enemies.Application.States
 {
@@ -32,6 +33,7 @@ namespace Game.Features.Enemies.Application.States
 
         public void Tick(float deltaTime)
         {
+            Debug.Log("Tick Attack State");
             _composite.Attack.Tick(deltaTime);
 
             if (_composite.Movement.IsInAttackRange() == false)

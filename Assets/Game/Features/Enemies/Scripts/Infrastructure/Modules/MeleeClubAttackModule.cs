@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Features.Enemies.Domain;
+using Game.Features.Combat.Domain;
 using Game.Features.Enemies.Domain.Modules;
 using Game.Features.Enemies.Presentation.Unity;
 using Game.Features.Enemies.Presentation.Unity.Configs;
@@ -61,19 +61,24 @@ namespace Game.Features.Enemies.Infrastructure.Modules
 
             for (int i = 0; i < hits.Length; i++)
             {
-                IDamageable damageable = hits[i].GetComponentInParent<IDamageable>();
-                if (damageable != null)
+                Transform root = hits[i].transform;
+
+                IDamageable damageable = root.GetComponentInParent<IDamageable>();
+                if (damageable == null)
                 {
-                    damageable.ApplyDamage(_config.Damage);
+                    continue;
                 }
+
+                ITeamMember member = root.GetComponentInParent<ITeamMember>();
+                if (member != null && member.TeamId == _context.TeamId)
+                {
+                    continue;
+                }
+
+                damageable.ApplyDamage(_config.Damage);
             }
 
             return UniTask.CompletedTask;
         }
-    }
-
-    public interface IDamageable
-    {
-        void ApplyDamage(float value);
     }
 }

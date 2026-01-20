@@ -2,32 +2,30 @@
 using System.Collections.Generic;
 using Game.Core.Scripts.Domain.StateMachine;
 using Game.Features.Enemies.Application;
+using Game.Features.Enemies.Domain;
 using Game.Features.Enemies.Presentation.Unity.Configs;
-using Zenject;
 
 namespace Game.Features.Enemies.Presentation.Unity.Factories
 {
     public sealed class EnemyBrainFactory
     {
-        private readonly DiContainer _container;
-        private readonly EnemyBrainConfig _config;
+        private readonly EnemyStateRegistry _registry;
 
-        public EnemyBrainFactory(DiContainer container, EnemyBrainConfig config)
+        public EnemyBrainFactory(EnemyStateRegistry registry)
         {
-            _container = container;
-            _config = config;
+            _registry = registry;
         }
 
-        public EnemyBrain Create()
-        {
-            return Create(_config);
-        }
-
-        public EnemyBrain Create(EnemyBrainConfig config)
+        public EnemyBrain Create(EnemyBrainConfig config, EnemyComposite composite)
         {
             if (config == null)
             {
                 throw new ArgumentNullException(nameof(config));
+            }
+
+            if (composite == null)
+            {
+                throw new ArgumentNullException(nameof(composite));
             }
 
             EnemyStateID[] requiredStates = config.RequiredStates;
@@ -39,22 +37,19 @@ namespace Game.Features.Enemies.Presentation.Unity.Factories
             ValidateUnique(requiredStates);
             EnsureContains(requiredStates, EnemyStateID.Dead);
 
+            EnemyStateSwitcher switcher = new EnemyStateSwitcher();
+
             Dictionary<EnemyStateID, IState> states = new Dictionary<EnemyStateID, IState>(requiredStates.Length);
 
             for (int i = 0; i < requiredStates.Length; i++)
             {
                 EnemyStateID id = requiredStates[i];
-
-                IState state = _container.ResolveId<IState>(id);
-                if (state == null)
-                {
-                    throw new InvalidOperationException("Resolved state is null: " + id);
-                }
-
-                states[id] = state;
+                states[id] = _registry.Create(id, composite, switcher);
             }
 
-            return new EnemyBrain(states, config.InitialStateId);
+            EnemyBrain brain = new EnemyBrain(states, config.InitialStateId);
+            switcher.Bind(brain);
+            return brain;
         }
 
         private static void ValidateUnique(EnemyStateID[] ids)

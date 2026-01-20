@@ -18,15 +18,9 @@ namespace Game.Features.Enemies.Application
             _initialStateId = initialStateId;
         }
 
-        public EnemyStateID CurrentStateId
-        {
-            get { return _stateMachine.CurrentStateId; }
-        }
+        public EnemyStateID CurrentStateId => _stateMachine.CurrentStateId;
 
-        public bool IsDead
-        {
-            get { return _stateMachine.HasState && EqualityComparer<EnemyStateID>.Default.Equals(_stateMachine.CurrentStateId, EnemyStateID.Dead); }
-        }
+        public bool IsDead => _stateMachine.HasState && _stateMachine.CurrentStateId == EnemyStateID.Dead;
 
         public void Tick(float deltaTime)
         {

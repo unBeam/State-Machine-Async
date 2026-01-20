@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Core.Scripts.Domain.StateMachine;
+using Game.Features.Combat.Domain;
 using Game.Features.Enemies.Application;
-using Game.Features.Enemies.Application.States;
 using Game.Features.Enemies.Domain;
 using Game.Features.Enemies.Presentation.Unity;
 using Game.Features.Enemies.Presentation.Unity.Configs;
@@ -15,34 +13,31 @@ using Zenject;
 
 namespace Game.Features.Enemies.Unity
 {
+    [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(EnemyTeam))]
     public sealed class EnemyFacade : MonoBehaviour, IDisposable
     {
         [SerializeField] private EnemyDefinition _definition;
-        [SerializeField] private Transform _target;
         [SerializeField] private Transform _muzzle;
 
         private EnemyBrain _brain;
         private EnemyComposite _composite;
         private CancellationTokenSource _cts;
 
-        [Inject] private DiContainer _container;
         [Inject] private EnemyCompositeFactory _compositeFactory;
+        [Inject] private EnemyBrainFactory _brainFactory;
+        [Inject] private ITargetProvider _targets;
 
         private void Awake()
         {
-            if (_definition == null)
-            {
-                throw new InvalidOperationException("EnemyDefinition is not set.");
-            }
-
-            EnemyContext context = new EnemyContext(transform, _target);
+            EnemyTeam team = GetComponent<EnemyTeam>();
             NavMeshAgent agent = GetComponent<NavMeshAgent>();
 
+            EnemyContext context = new EnemyContext(transform, _targets, team.TeamId);
+
             _composite = _compositeFactory.Create(_definition, context, agent, _muzzle);
+            _brain = _brainFactory.Create(_definition.BrainConfig, _composite);
 
-            Dictionary<EnemyStateID, IState> states = CreateStates(_definition.BrainConfig, _composite);
-
-            _brain = new EnemyBrain(states, _definition.BrainConfig.InitialStateId);
             _cts = new CancellationTokenSource();
         }
 
@@ -53,50 +48,7 @@ namespace Game.Features.Enemies.Unity
 
         private void Update()
         {
-            float dt = Time.deltaTime;
-            _brain.Tick(dt);
-        }
-
-        private Dictionary<EnemyStateID, IState> CreateStates(EnemyBrainConfig brainConfig, EnemyComposite composite)
-        {
-            Dictionary<EnemyStateID, IState> states = new Dictionary<EnemyStateID, IState>(brainConfig.RequiredStates.Length);
-
-            EnemyStateID[] required = brainConfig.RequiredStates;
-
-            for (int i = 0; i < required.Length; i++)
-            {
-                EnemyStateID id = required[i];
-                states[id] = CreateState(id, composite);
-            }
-
-            return states;
-        }
-
-        private IState CreateState(EnemyStateID id, EnemyComposite composite)
-        {
-            if (id == EnemyStateID.Idle)
-            {
-                return _container.Instantiate<EnemyIdleState>();
-            }
-
-            if (id == EnemyStateID.Engage)
-            {
-                IEnemyStateSwitcher switcher = new EnemyStateSwitcher(() => _brain);
-                return new EnemyEngageState(composite, switcher);
-            }
-
-            if (id == EnemyStateID.Attack)
-            {
-                IEnemyStateSwitcher switcher = new EnemyStateSwitcher(() => _brain);
-                return new EnemyAttackState(composite, switcher);
-            }
-
-            if (id == EnemyStateID.Dead)
-            {
-                return _container.Instantiate<EnemyDeadState>();
-            }
-
-            throw new InvalidOperationException("Unknown state id: " + id);
+            _brain.Tick(Time.deltaTime);
         }
 
         public void Dispose()

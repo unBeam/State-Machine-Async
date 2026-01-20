@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Scripts.Pooling;
-using Game.Features.Combat;
-using Zenject;
+using R3;
 using UnityEngine;
 
 namespace Game.Features.Combat
@@ -13,11 +12,13 @@ namespace Game.Features.Combat
     {
         private readonly BulletMemoryPool _pool;
         private readonly Dictionary<int, CancellationTokenSource> _lifeTokens;
+        private readonly Dictionary<int, IDisposable> _hitSubscriptions;
 
         public BulletService(BulletMemoryPool pool)
         {
             _pool = pool;
             _lifeTokens = new Dictionary<int, CancellationTokenSource>();
+            _hitSubscriptions = new Dictionary<int, IDisposable>();
         }
 
         public Bullet Spawn(BulletSpawnParams bulletParams)
@@ -27,7 +28,12 @@ namespace Game.Features.Combat
             bullet.gameObject.SetActive(true);
             bullet.Apply(bulletParams);
 
-            bullet.Hit += OnProjectileHit;
+            int id = bullet.GetInstanceID();
+
+            StopHitSubscription(id);
+
+            IDisposable hitSub = bullet.Hit.Subscribe(collision => OnProjectileHit(bullet, collision));
+            _hitSubscriptions.Add(id, hitSub);
 
             StartLifetime(bullet, bulletParams.LifeSeconds);
 
@@ -58,6 +64,17 @@ namespace Game.Features.Combat
             cts.Dispose();
         }
 
+        private void StopHitSubscription(int id)
+        {
+            if (_hitSubscriptions.TryGetValue(id, out IDisposable sub) == false)
+            {
+                return;
+            }
+
+            _hitSubscriptions.Remove(id);
+            sub.Dispose();
+        }
+
         private async UniTaskVoid DespawnAfterDelayAsync(Bullet bullet, float lifeSeconds, CancellationToken token)
         {
             try
@@ -80,7 +97,9 @@ namespace Game.Features.Combat
         private void Despawn(Bullet bullet)
         {
             int id = bullet.GetInstanceID();
+
             StopLifetime(id);
+            StopHitSubscription(id);
 
             bullet.ResetState();
             bullet.gameObject.SetActive(false);

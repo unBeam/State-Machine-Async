@@ -16,15 +16,8 @@ namespace Game.Features.Enemies.Domain
             _attack = attack;
         }
 
-        public IMovementModule Movement
-        {
-            get { return _movement; }
-        }
-
-        public IAttackModule Attack
-        {
-            get { return _attack; }
-        }
+        public IMovementModule Movement => _movement;
+        public IAttackModule Attack => _attack;
 
         public UniTask EnterAsync(CancellationToken cancellationToken)
         {
@@ -51,10 +44,16 @@ namespace Game.Features.Enemies.Domain
         public void Dispose()
         {
             IDisposable disposableMovement = _movement as IDisposable;
-            disposableMovement?.Dispose();
+            if (disposableMovement != null)
+            {
+                disposableMovement.Dispose();
+            }
 
             IDisposable disposableAttack = _attack as IDisposable;
-            disposableAttack?.Dispose();
+            if (disposableAttack != null)
+            {
+                disposableAttack.Dispose();
+            }
         }
     }
 }

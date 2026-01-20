@@ -1,13 +1,16 @@
 ﻿using System;
+using R3;
 using UnityEngine;
 
 namespace Game.Features.Combat
 {
-    public sealed class Bullet : MonoBehaviour
+    public sealed class Bullet : MonoBehaviour, IDisposable
     {
         [SerializeField] private Rigidbody _rigidbody;
 
-        public event Action<Bullet, Collision> Hit;
+        private readonly Subject<Collision> _hit = new Subject<Collision>();
+
+        public Observable<Collision> Hit => _hit;
 
         public void Apply(BulletSpawnParams bulletParams)
         {
@@ -22,8 +25,6 @@ namespace Game.Features.Combat
 
         public void ResetState()
         {
-            Hit = null;
-
             if (_rigidbody != null)
             {
                 _rigidbody.linearVelocity = Vector3.zero;
@@ -33,13 +34,17 @@ namespace Game.Features.Combat
 
         private void OnCollisionEnter(Collision collision)
         {
-            Action<Bullet, Collision> handler = Hit;
-            if (handler == null)
-            {
-                return;
-            }
+            _hit.OnNext(collision);
+        }
 
-            handler(this, collision);
+        public void Dispose()
+        {
+            _hit.Dispose();
+        }
+
+        private void OnDestroy()
+        {
+            Dispose();
         }
     }
 }

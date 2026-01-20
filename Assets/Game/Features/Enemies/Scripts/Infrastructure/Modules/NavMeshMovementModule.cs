@@ -66,6 +66,7 @@ namespace Game.Features.Enemies.Application.Modules
             }
 
             float dist = Vector3.Distance(_context.Self.position, target.position);
+            Debug.Log($"{Vector3.Distance(_context.Self.position, target.position)} - distance currently {_config.AttackRange} - attack range currently");
             return dist <= _config.AttackRange;
         }
 

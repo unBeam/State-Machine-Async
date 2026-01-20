@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Game.Core.Scripts.Domain.StateMachine;
 using Game.Features.Enemies.Domain;
+using UnityEngine;
 
 namespace Game.Features.Enemies.Application.States
 {
@@ -29,7 +30,6 @@ namespace Game.Features.Enemies.Application.States
         public void Tick(float deltaTime)
         {
             _composite.Movement.Tick(deltaTime);
-
             if (_composite.Movement.IsInAttackRange())
             {
                 _switcher.SetStateAsync(EnemyStateID.Attack, CancellationToken.None).Forget();

@@ -19,11 +19,7 @@ namespace Game.Features.Enemies.Presentation.Unity.Factories
             _bullets = bullets;
         }
 
-        public EnemyComposite Create(
-            EnemyDefinition definition,
-            EnemyContext context,
-            NavMeshAgent agent,
-            Transform muzzle)
+        public EnemyComposite Create(EnemyDefinition definition, EnemyContext context, NavMeshAgent agent, Transform muzzle)
         {
             if (definition == null)
             {
@@ -36,10 +32,7 @@ namespace Game.Features.Enemies.Presentation.Unity.Factories
             return new EnemyComposite(movement, attack);
         }
 
-        private static IMovementModule CreateMovement(
-            EnemyMovementConfig config,
-            EnemyContext context,
-            NavMeshAgent agent)
+        private static IMovementModule CreateMovement(EnemyMovementConfig config, EnemyContext context, NavMeshAgent agent)
         {
             NavMeshMovementConfig navMeshConfig = config as NavMeshMovementConfig;
             if (navMeshConfig != null)
@@ -55,10 +48,7 @@ namespace Game.Features.Enemies.Presentation.Unity.Factories
             throw new InvalidOperationException("Unsupported movement config: " + config);
         }
 
-        private IAttackModule CreateAttack(
-            EnemyAttackConfig config,
-            EnemyContext context,
-            Transform muzzle)
+        private IAttackModule CreateAttack(EnemyAttackConfig config, EnemyContext context, Transform muzzle)
         {
             RangedWeaponConfig ranged = config as RangedWeaponConfig;
             if (ranged != null)
