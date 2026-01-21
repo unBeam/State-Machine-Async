@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f8bd0d667ef494c9bdffdfd464dae65, type: 3}
   m_Name: New Enemy Definition
   m_EditorClassIdentifier: Assembly-CSharp::Game.Features.Enemies.Domain.Configs.EnemyDefinition
-  _brainConfig: {fileID: 11400000, guid: 9eee618cfc5e3a6439a67d7e74b9a0f6, type: 2}
-  _movement: {fileID: 11400000, guid: 30d1444dc40b5c741b5d77985c72d36b, type: 2}
-  _attack: {fileID: 11400000, guid: d1de1c31e18b2644e89fccb53401d66f, type: 2}
+  <BrainConfig>k__BackingField: {fileID: 11400000, guid: 9eee618cfc5e3a6439a67d7e74b9a0f6, type: 2}
+  <Movement>k__BackingField: {fileID: 11400000, guid: 30d1444dc40b5c741b5d77985c72d36b, type: 2}
+  <Attack>k__BackingField: {fileID: 11400000, guid: d1de1c31e18b2644e89fccb53401d66f, type: 2}

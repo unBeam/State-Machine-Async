@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60cf9a8d34794a809ab96a84f14313e9, type: 3}
   m_Name: New Enemy Brain Config
   m_EditorClassIdentifier: Assembly-CSharp::Game.Features.Enemies.Application.EnemyBrainConfig
-  _initialStateId: 1
-  _requiredStates: 00000000010000000200000003000000
+  <InitialStateId>k__BackingField: 1
+  <RequiredStates>k__BackingField: 00000000010000000200000003000000

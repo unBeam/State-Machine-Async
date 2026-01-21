@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Features.Combat;
+using Game.Features.Combat.Domain;
 using Game.Features.Enemies.Domain;
 using Game.Features.Enemies.Domain.Modules;
 using Game.Features.Enemies.Presentation.Unity;
@@ -16,6 +17,7 @@ namespace Game.Features.Enemies.Application.Modules
         private readonly Transform _muzzle;
         private readonly RangedWeaponConfig _config;
         private readonly BulletService _bullets;
+        private readonly BulletSpawnParamsBuilder _builder;
 
         private float _cooldownLeft;
 
@@ -23,12 +25,14 @@ namespace Game.Features.Enemies.Application.Modules
             EnemyContext context,
             Transform muzzle,
             RangedWeaponConfig config,
-            BulletService bullets)
+            BulletService bullets,
+            BulletSpawnParamsBuilder builder)
         {
             _context = context;
             _muzzle = muzzle;
             _config = config;
             _bullets = bullets;
+            _builder = builder;
         }
 
         public UniTask EnterAsync(CancellationToken cancellationToken)
@@ -82,14 +86,11 @@ namespace Game.Features.Enemies.Application.Modules
                 return UniTask.CompletedTask;
             }
 
-            Vector3 dir = (target.position - _muzzle.position).normalized;
-            Vector3 velocity = dir * _config.ProjectileSpeed;
-
-            BulletSpawnParams bulletParams = new BulletSpawnParams(
-                _muzzle.position,
-                Quaternion.LookRotation(dir, Vector3.up),
-                velocity,
-                _config.BulletLifeTimeSeconds
+            BulletSpawnParams bulletParams = _builder.Build(
+                _muzzle,
+                target,
+                _context.TeamId,
+                _config
             );
 
             _bullets.Spawn(bulletParams);

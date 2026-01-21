@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 927b01531e51451a83cdf5d042a54952, type: 3}
   m_Name: New Nav Mesh Movement Config
   m_EditorClassIdentifier: Assembly-CSharp::Game.Features.Enemies.Domain.Configs.NavMeshMovementConfig
-  _moveSpeed: 3.5
-  _angularSpeed: 540
-  _acceleration: 16
-  _stoppingDistance: 5
-  _attackRange: 10
+  <MoveSpeed>k__BackingField: 7
+  <AngularSpeed>k__BackingField: 540
+  <Acceleration>k__BackingField: 16
+  <StoppingDistance>k__BackingField: 1
+  <AttackRange>k__BackingField: 5

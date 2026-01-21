@@ -14,7 +14,6 @@ using Zenject;
 namespace Game.Features.Enemies.Unity
 {
     [RequireComponent(typeof(NavMeshAgent))]
-    [RequireComponent(typeof(EnemyTeam))]
     public sealed class EnemyFacade : MonoBehaviour, IDisposable
     {
         [SerializeField] private EnemyDefinition _definition;
@@ -27,10 +26,16 @@ namespace Game.Features.Enemies.Unity
         [Inject] private EnemyCompositeFactory _compositeFactory;
         [Inject] private EnemyBrainFactory _brainFactory;
         [Inject] private ITargetProvider _targets;
-
+        
         private void Awake()
         {
-            EnemyTeam team = GetComponent<EnemyTeam>();
+            ITeamMember team = GetComponent<ITeamMember>();
+            if (team == null)
+            {
+                throw new InvalidOperationException(
+                    "EnemyFacade requires a component implementing ITeamMember on the same GameObject.");
+            }
+
             NavMeshAgent agent = GetComponent<NavMeshAgent>();
 
             EnemyContext context = new EnemyContext(transform, _targets, team.TeamId);
@@ -40,7 +45,7 @@ namespace Game.Features.Enemies.Unity
 
             _cts = new CancellationTokenSource();
         }
-
+        
         private void Start()
         {
             _brain.StartAsync(_cts.Token).Forget();

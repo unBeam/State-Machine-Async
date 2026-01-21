@@ -2,6 +2,7 @@
 using Zenject;
 using Game.Features.Combat;
 using Game.Core.Scripts.Pooling;
+using Game.Features.Combat.Domain;
 
 namespace Game.Features.Combat.Installers
 {
@@ -17,8 +18,9 @@ namespace Game.Features.Combat.Installers
                 .FromComponentInNewPrefab(bulletPrefab)
                 .UnderTransformGroup("Projectiles");
 
-            Container.Bind<BulletService>()
-                .AsSingle();
+            Container.Bind<BulletService>().AsSingle();
+            Container.Bind<BulletSpawnParamsBuilder>().AsSingle();
         }
+
     }
 }

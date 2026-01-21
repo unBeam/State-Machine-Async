@@ -17,4 +17,4 @@ MonoBehaviour:
   <HitRadius>k__BackingField: 1.2
   <HitMask>k__BackingField:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128

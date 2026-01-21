@@ -1,5 +1,6 @@
 ﻿using System;
 using Game.Features.Combat;
+using Game.Features.Combat.Domain;
 using Game.Features.Enemies.Application.Modules;
 using Game.Features.Enemies.Domain;
 using Game.Features.Enemies.Domain.Modules;
@@ -13,10 +14,12 @@ namespace Game.Features.Enemies.Presentation.Unity.Factories
     public sealed class EnemyCompositeFactory
     {
         private readonly BulletService _bullets;
+        private readonly BulletSpawnParamsBuilder _builder;
 
-        public EnemyCompositeFactory(BulletService bullets)
+        public EnemyCompositeFactory(BulletService bullets, BulletSpawnParamsBuilder builder)
         {
             _bullets = bullets;
+            _builder = builder;
         }
 
         public EnemyComposite Create(EnemyDefinition definition, EnemyContext context, NavMeshAgent agent, Transform muzzle)
@@ -53,7 +56,7 @@ namespace Game.Features.Enemies.Presentation.Unity.Factories
             RangedWeaponConfig ranged = config as RangedWeaponConfig;
             if (ranged != null)
             {
-                return new RangedWeaponAttackModule(context, muzzle, ranged, _bullets);
+                return new RangedWeaponAttackModule(context, muzzle, ranged, _bullets, _builder);
             }
 
             MeleeClubConfig melee = config as MeleeClubConfig;

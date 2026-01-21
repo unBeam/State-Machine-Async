@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 681dee2a414b48a283ee7740be10db18, type: 3}
   m_Name: New Ranged Weapon Config
   m_EditorClassIdentifier: Assembly-CSharp::Game.Features.Enemies.Domain.Configs.RangedWeaponConfig
-  _cooldownSeconds: 5
-  _projectilePrefab: {fileID: 7744288379905232507, guid: 35681d6c7ef7a5c4dbcc9e6ce3fbe3c3, type: 3}
-  _muzzleOverride: {fileID: 0}
-  _projectileSpeed: 18
-  _maxShootDistance: 12
+  <CooldownSeconds>k__BackingField: 0.5
+  <ProjectilePrefab>k__BackingField: {fileID: 8560868509884607499, guid: 0609af05d5847294ba0f3af24cf1d334, type: 3}
+  <ProjectileSpeed>k__BackingField: 20
+  <MaxShootDistance>k__BackingField: 20
+  <BulletLifeTimeSeconds>k__BackingField: 2
+  <BulletDamage>k__BackingField: 5
+  <FriendlyFire>k__BackingField: 0
