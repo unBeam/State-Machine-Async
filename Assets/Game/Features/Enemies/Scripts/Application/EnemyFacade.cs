@@ -26,18 +26,16 @@ namespace Game.Features.Enemies.Unity
         [Inject] private EnemyCompositeFactory _compositeFactory;
         [Inject] private EnemyBrainFactory _brainFactory;
         [Inject] private ITargetProvider _targets;
-        
+
         private void Awake()
         {
             ITeamMember team = GetComponent<ITeamMember>();
             if (team == null)
             {
-                throw new InvalidOperationException(
-                    "EnemyFacade requires a component implementing ITeamMember on the same GameObject.");
+                throw new InvalidOperationException("EnemyFacade requires a component implementing ITeamMember on the same GameObject.");
             }
 
             NavMeshAgent agent = GetComponent<NavMeshAgent>();
-
             EnemyContext context = new EnemyContext(transform, _targets, team.TeamId);
 
             _composite = _compositeFactory.Create(_definition, context, agent, _muzzle);
@@ -45,14 +43,27 @@ namespace Game.Features.Enemies.Unity
 
             _cts = new CancellationTokenSource();
         }
-        
+
         private void Start()
         {
-            _brain.StartAsync(_cts.Token).Forget();
+            StartAsync().Forget();
+        }
+
+        private async UniTaskVoid StartAsync()
+        {
+            CancellationToken token = _cts.Token;
+
+            await _composite.EnterAsync(token);
+            await _brain.StartAsync(token);
         }
 
         private void Update()
         {
+            if (_brain == null)
+            {
+                return;
+            }
+
             _brain.Tick(Time.deltaTime);
         }
 

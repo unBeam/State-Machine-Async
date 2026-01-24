@@ -1,5 +1,4 @@
-﻿using Game.Features.Enemies.Domain;
-using Game.Features.Enemies.Presentation.Unity.Factories;
+﻿using Game.Features.Enemies.Presentation.Unity.Factories;
 using Zenject;
 
 namespace Game.Features.Enemies.Presentation.Unity.Installers
@@ -12,9 +11,6 @@ namespace Game.Features.Enemies.Presentation.Unity.Installers
 
             Container.Bind<EnemyStateRegistry>().AsSingle();
             Container.Bind<EnemyBrainFactory>().AsTransient();
-
-            Container.Bind<EnemyStateSwitcher>().AsTransient();
-            Container.Bind<IEnemyStateSwitcher>().To<EnemyStateSwitcher>().FromResolve().AsTransient();
         }
     }
 }

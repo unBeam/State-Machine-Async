@@ -1,8 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Scripts.Domain.StateMachine;
 using Game.Features.Enemies.Domain;
-using UnityEngine;
 
 namespace Game.Features.Enemies.Application.States
 {
@@ -10,7 +10,10 @@ namespace Game.Features.Enemies.Application.States
     {
         private readonly EnemyComposite _composite;
         private readonly IEnemyStateSwitcher _switcher;
-        private int _isAttacking;
+
+        private bool _isAttacking;
+        private CancellationToken _lifetimeToken;
+        private CancellationTokenSource _attackCts;
 
         public EnemyAttackState(EnemyComposite composite, IEnemyStateSwitcher switcher)
         {
@@ -20,29 +23,34 @@ namespace Game.Features.Enemies.Application.States
 
         public UniTask EnterAsync(CancellationToken cancellationToken)
         {
-            _isAttacking = 0;
+            _lifetimeToken = cancellationToken;
+            _isAttacking = false;
+
+            DisposeAttackCts();
+            _attackCts = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken);
+
             _composite.Movement.Stop();
             return _composite.Attack.EnterAsync(cancellationToken);
         }
 
         public UniTask ExitAsync(CancellationToken cancellationToken)
         {
-            _isAttacking = 0;
+            _isAttacking = false;
+            CancelAttackCts();
             return _composite.Attack.ExitAsync(cancellationToken);
         }
 
         public void Tick(float deltaTime)
         {
-            Debug.Log("Tick Attack State");
             _composite.Attack.Tick(deltaTime);
 
             if (_composite.Movement.IsInAttackRange() == false)
             {
-                _switcher.SetStateAsync(EnemyStateID.Engage, CancellationToken.None).Forget();
+                _switcher.SetStateAsync(EnemyStateID.Engage, _lifetimeToken).Forget();
                 return;
             }
 
-            if (_isAttacking == 1)
+            if (_isAttacking)
             {
                 return;
             }
@@ -52,20 +60,47 @@ namespace Game.Features.Enemies.Application.States
                 return;
             }
 
-            _isAttacking = 1;
+            _isAttacking = true;
             AttackRoutine().Forget();
         }
 
         private async UniTaskVoid AttackRoutine()
         {
+            CancellationToken token = _attackCts != null ? _attackCts.Token : _lifetimeToken;
+
             try
             {
-                await _composite.Attack.AttackAsync(CancellationToken.None);
+                await _composite.Attack.AttackAsync(token);
+            }
+            catch (OperationCanceledException)
+            {
             }
             finally
             {
-                _isAttacking = 0;
+                _isAttacking = false;
             }
+        }
+
+        private void CancelAttackCts()
+        {
+            if (_attackCts == null)
+            {
+                return;
+            }
+
+            _attackCts.Cancel();
+            DisposeAttackCts();
+        }
+
+        private void DisposeAttackCts()
+        {
+            if (_attackCts == null)
+            {
+                return;
+            }
+
+            _attackCts.Dispose();
+            _attackCts = null;
         }
     }
 }

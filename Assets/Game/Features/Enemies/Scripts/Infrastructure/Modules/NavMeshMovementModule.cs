@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Features.Enemies.Domain;
 using Game.Features.Enemies.Domain.Modules;
 using Game.Features.Enemies.Presentation.Unity;
 using Game.Features.Enemies.Presentation.Unity.Configs;
@@ -15,11 +14,20 @@ namespace Game.Features.Enemies.Application.Modules
         private readonly NavMeshAgent _agent;
         private readonly NavMeshMovementConfig _config;
 
+        private float _attackRangeSqr;
+        private float _updateThresholdSqr;
+
         public NavMeshMovementModule(EnemyContext context, NavMeshAgent agent, NavMeshMovementConfig config)
         {
             _context = context;
             _agent = agent;
             _config = config;
+
+            float attackRange = _config.AttackRange;
+            _attackRangeSqr = attackRange * attackRange;
+
+            float updateThreshold = 0.25f;
+            _updateThresholdSqr = updateThreshold * updateThreshold;
         }
 
         public UniTask EnterAsync(CancellationToken cancellationToken)
@@ -50,8 +58,14 @@ namespace Game.Features.Enemies.Application.Modules
 
             _agent.isStopped = false;
 
-            float updateThreshold = 0.25f;
-            if (_agent.hasPath == false || Vector3.Distance(_agent.destination, target.position) > updateThreshold)
+            if (_agent.hasPath == false)
+            {
+                _agent.SetDestination(target.position);
+                return;
+            }
+
+            Vector3 delta = _agent.destination - target.position;
+            if (delta.sqrMagnitude > _updateThresholdSqr)
             {
                 _agent.SetDestination(target.position);
             }
@@ -65,9 +79,8 @@ namespace Game.Features.Enemies.Application.Modules
                 return false;
             }
 
-            float dist = Vector3.Distance(_context.Self.position, target.position);
-            Debug.Log($"{Vector3.Distance(_context.Self.position, target.position)} - distance currently {_config.AttackRange} - attack range currently");
-            return dist <= _config.AttackRange;
+            Vector3 delta = target.position - _context.Self.position;
+            return delta.sqrMagnitude <= _attackRangeSqr;
         }
 
         public void Stop()
